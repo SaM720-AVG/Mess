@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messagerie</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #messages { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; height: 300px; overflow-y: scroll; }
+        #messageForm { display: flex; }
+        #messageInput { flex: 1; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+<h1>Messagerie</h1>
+<div id="messages">
+    <!-- Les messages seront chargés ici par JavaScript -->
+</div>
+
+<form id="messageForm">
+    <input type="text" id="messageInput" placeholder="Écrivez un message..." required>
+    <button type="submit">Envoyer</button>
+</form>
+
+<script>
+    // Charger les messages
+    function loadMessages() {
+        fetch('messages.json')
+            .then(response => response.json())
+            .then(data => {
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = '';
+                data.forEach(msg => {
+                    const msgElement = document.createElement('div');
+                    msgElement.textContent = `${msg.username}: ${msg.message}`;
+                    messagesDiv.appendChild(msgElement);
+                });
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+    }
+
+    // Envoyer un message
+    document.getElementById('messageForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value;
+
+        fetch('send_message.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `username=Utilisateur&message=${encodeURIComponent(message)}`
+        }).then(() => {
+            messageInput.value = '';
+            loadMessages();
+        });
+    });
+
+    // Charger les messages au démarrage
+    loadMessages();
+</script>
+
+</body>
+</html>
